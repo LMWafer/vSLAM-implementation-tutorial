@@ -16,11 +16,12 @@ This tutorial is made with concerns for novice people : all actions are explaine
 
 ## Skills & opportunity
 
-@[split](2, begin)
 
 ### Required skills
 
 This tutorial assumes basic filesystem navigation Linux commands are known. 
+
+@[split](2, begin)
 
 ### Skills learned with Level 0
 
@@ -39,6 +40,8 @@ Here you will learn general C++ program notions, through creation of a simple of
 - C++ application building with CMake
 - Executable running with Linux
 
+@[split](2, end)
+
 @[split](2, begin)
 
 ### Skills learned with Level 2
@@ -50,6 +53,7 @@ This level shows how to develop a user-friendly and real-time vSLAM program:
 - Trajectory visualization
 
 @[split](2, break)
+
 ### Skills learned with Level 3
 
 Finally, you will discover how to make your vSLAM program safier and more portable thanks to containerization:
@@ -62,6 +66,7 @@ Finally, you will discover how to make your vSLAM program safier and more portab
 First, we need to install what will help us to create applications : ORB-SLAM3 and its dependencies. At the end of this level we will have a fully setup development environment. ORB-SLAM3 library and dependencies informations are available on [Zaragoza University SLAMlab's Github](https://github.com/UZ-SLAMLab/ORB_SLAM3). 
 
 ## Overview
+
 @[split](2, begin)
 
 Creating an ORB-SLAM3 based application requires Ubuntu 16.04 or 18.04 and several dependencies. Below is the list of perequisites. 
@@ -88,21 +93,34 @@ Creating an ORB-SLAM3 based application requires Ubuntu 16.04 or 18.04 and sever
 @[split](2, begin)
 
 ## *As Package* installation pattern
-It is possible to install a dependency as a package. This will download binary files and place them in `/usr/lib` or `/usr/lib/bin` directory. Here is the command for Eigen3
+
+It is possible to install a dependency using `apt-get` package handling utility. `apt-get install package_name` will download pre-built binary files and place them in `/usr/lib` or `/usr/lib/bin` directory. Before trying to start installations, it is highly recomended to update packages information and then run an upgrade of current installed libraries. This ensures your environment and future installations are up to date. Here is the command for **Eigen3**. 
 
 ![Package installation pattern](https://dvic.devinci.fr/api/v3/img/full/wgbuo0p8hmjrvnyjdo9v3ik3me954x.png)
 
+Such command retrieves archives from registered repositories and extract them to `.so` (`.shared obects`) files. These are dynamic objects: library binaries which can be loaded by other binaries. In our case we are about to compile the ORB-SLAM3 library that will be loaded by our application alongside its dependencies. 
+
+## *Built from mod. source* installation pattern
+
+Very similar to *Built from source*. The first difference is you do not need to clone github repository since ORB-SLAM3 authors did it in `ORB_SLAM3/Thirdparty` directory. Parts of the source code is modified to match their requirements. You do not need to install either: ORB-SLAM3 `CMakeLists.txt` is configured to get `.so` files directly in their build zone. Here is the pattern applied for **DBoW2**. 
+
+![Build from modified source](https://dvic.devinci.fr/api/v3/img/thumbnail/40ks0zhzip9grpa5x11uq2yfmuwi82.png)
+
 @[split](2, break)
 
-### *Usual "build from git" pattern*
+## *Built from source* installation pattern
 
-Most of the dependencies' binary packages can be installed via `apt`-like package managers like shown above. Although this technic is very easy, it may not have all options. In comparaison building from source allows better control over installed version, installation location, present features and hardware compatibility. 
+Most of the dependencies' binary packages can be installed via package managers as shown above. Although this technic is very easy, it may not have all options. In comparaison building from source allows better control over installed version, installation location, present features and hardware compatibility. 
 
-Here is the usual "build from github source" patern used in the [save Github](https://github.com/LMWafer/orb-slam-3-ready) for **Pangolin**. It is  
+Here is the usual "build from github source" patern applied to **Pangolin**.
 
 ![Git pattern](https://dvic.devinci.fr/api/v3/img/thumbnail/6k8mzht4yvss0iboak2w792wr5wd1t.png)
 
-`make install` copies the built `.so` files to `/usr/local` or `/usr/local/bin`. These are usual locations where cmake - a build file generator that will be used later - will look for libraries. 
+1. First we download the git repo in the present working directory
+2. Then we create a build subdirectory and enter it in order to isolate build products from other files
+3. `cmake -D name=value ..` calls `cmake`, a configuration tool that setups source code compilation. `-D name=value` allows to change compilation settings by passing setting name and its new value. `..` tells `cmake` that configuration files it is looking for (called `CMakeLists.txt`) is located in parent directory of `build/`, that is `ORB_SLAM3/`. Placing `cmake` file at the project's root is very common. 
+4. `make -j6` executes created `Makefile`, that handles compilation. `-j6` option allows 6 compilation jobs at once. That means 6 files are compiled at a time if possible. This number depends on number of your processor's cores. Type `nproc` command to know max core number. 
+5. `make install` copies created `.so` files to `/usr/local` or `/usr/local/bin`. These are usual locations where cmake - a build file generator that will be used later - will look for libraries. 
 
 @[split](2, end)
 
