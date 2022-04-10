@@ -4,7 +4,9 @@ apt-get upgrade -y
 apt-get install -y apt-file
 apt-file update
 apt-get install -y -qq --no-install-recommends \
+    cmake \
     ffmpeg \
+    g++ \
     git \
     libavcodec-dev \
     libavformat-dev \
@@ -55,7 +57,6 @@ cmake \
 make -j6
 make install
 ldconfig
-
 
 mkdir /dpds/ORB_SLAM3/Thirdparty/DBoW2/build/
 cd /dpds/ORB_SLAM3/Thirdparty/DBoW2/build/

@@ -16,7 +16,6 @@ This tutorial is made with concerns for novice people : all actions are explaine
 
 ## Skills & opportunity
 
-
 ### Required skills
 
 This tutorial assumes basic filesystem navigation Linux commands are known. 
@@ -58,11 +57,15 @@ This level shows how to develop a user-friendly and real-time vSLAM program:
 
 Finally, you will discover how to make your vSLAM program safier and more portable thanks to containerization:
 - Docker image building
+- docker-compose creation 
+- Container security
+- Graphic context piping
 
 @[split](2, end)
 
 
 # Level 0 - Setup development environment with *Linux*
+
 First, we need to install what will help us to create applications : ORB-SLAM3 and its dependencies. At the end of this level we will have a fully setup development environment. ORB-SLAM3 library and dependencies informations are available on [Zaragoza University SLAMlab's Github](https://github.com/UZ-SLAMLab/ORB_SLAM3). 
 
 ## Overview
@@ -86,7 +89,11 @@ Creating an ORB-SLAM3 based application requires Ubuntu 16.04 or 18.04 and sever
 
 *As Package* : download built library as apt package and install it.
 
-*Built from mod. source* alongside *modified* : source code already downloaded with ORB-SLAM3's github (in its *Thirdparty/* directory). Build and installation made with `build.sh`. This is because librarys' code is slightly modified by ORB-SLAM3 authors.  
+*Built from mod. source* alongside *modified* : source code already downloaded with ORB-SLAM3's github (in its *Thirdparty/* directory). Build and installation made with `build.sh`. This is because librarys' code is slightly modified by ORB-SLAM3 authors. 
+
+Note that `Realsense SDK` is only needed if we compile ORB-SLAM3 examples that use an Intel Realsense Camera (D435i model with these examples). 
+
+All setup commands used in this level are located in the [following file](https://github.com/LMWafer/vSLAM-implementation-tutorial). Here is explained what is happening when you run them. 
 
 @[split](2, end)
 
@@ -126,38 +133,39 @@ Here is the usual "build from github source" patern applied to **Pangolin**.
 
 # Level 1 - Create fast and robust application with *C++*
 
+Now an application can be coded and built within our fresh environment. We may want to start small with an off-line vSLAM session applied onto a video. This consists of retrieving `.mp4` frames and applying vSLAM tracking on them to get camera position over time.
+
 ## Step 1.1 Create application code
-Once everything is set up an application can be created. Let's enter the details of a real-time vSLAM run written in C++. 
 
 @[split](2, begin)
 
-1.Include needed libraries. OpenCV is used to resize image, the other deps are called internally by ORB-SLAM3. 
+1.Include needed libraries. OpenCV is used to get video's frames, other deps are called internally by ORB-SLAM3. 
 
-![include library](https://dvic.devinci.fr/api/v3/img/thumbnail/o64lmwem45m7cx8r2qnu80kjbwu7jh.png)
+![Include libraries](https://dvic.devinci.fr/api/v3/img/thumbnail/bfpvlsu6s602gqc2pkew8xdips2xy5.png)
 
 @[split](2, break)
 
-2.Select the camera. Realsense SDK handles multiple devices, here only the first available is used. If only one camera is connected, this will also work. 
+2.Open video file as an image stream.
 
-![Select camera](https://dvic.devinci.fr/api/v3/img/thumbnail/gi9o38gpp46d4tsdalrdwxvddzsqdb.png)
+![Open video](https://dvic.devinci.fr/api/v3/img/thumbnail/xdr7vnhp2v3ka9gqa5pks6q2oc49nh.png   )
 
 @[split](2, end)
 
 @[split](2, begin)
 
-3.Get infrared images. They are made available by creating a stream-like object that transfers them to a callback function. 
+3.Retrieve images one at a time and apply a resize operation while showing them. Here video framerate is 60fps, thus we get and show images at the same pace. 
 
-![Get image](https://dvic.devinci.fr/api/v3/img/thumbnail/c5yu0r0e1vqezziya4ba4qpwngr9jg.png)
+![Get image](https://dvic.devinci.fr/api/v3/img/thumbnail/f4ypqnnieeexqlikbowy876pnbfzsi.png)
 
 @[split](2, break)
 
-4.Compute the vSLAM for each frame. `arg[1]` and `arg[2]` come from the executable input argument: DBoW2 vocabulary and vSALM settings.
+4.Compute the vSLAM for each frame. `path_to_vocabulary` and `path_to_settings` come from the executable input argument: DBoW2 vocabulary and vSALM settings.
 
-![Compute SLAM](https://dvic.devinci.fr/api/v3/img/thumbnail/45atkyfuvuj0ger8nnmw68w66sso8f.png)
+![Compute SLAM](https://dvic.devinci.fr/api/v3/img/thumbnail/9ihqeh50vn9ffhqkhrwwvvdqf5i8mu.png)
 
 @[split](2, end)
 
-These are juste file fragment. Find the source code on [Github](https://github.com/UZ-SLAMLab/ORB_SLAM3/blob/master/Examples/Monocular/mono_realsense_D435i.cc)
+These are juste file fragments. Find the source code on [Github](https://github.com/LMWafer/vSLAM-implementation-tutorial). 
 
 ## Step 1.2 Build application
 Building the application would requires a very long command to indicate where each dependency is, which compiler to use etc. In order to speed up the process a CMakeLists gives all the parameters used. 
@@ -166,7 +174,7 @@ Building the application would requires a very long command to indicate where ea
 
 @[split](2, begin)
 
-1.Check and select compiler version. The cmake file looks for CXX11 or CXX0X version. Here is the 
+1.Check and select compiler version. The cmake file looks for CXX11 or CXX0X version.
 
 ![Compiler version](https://dvic.devinci.fr/api/v3/img/thumbnail/tv7t73130a9sra89bwnr91yt3v9ava.png)
 
@@ -181,7 +189,7 @@ Building the application would requires a very long command to indicate where ea
 
 3.Create an executable. 
 
-![Create executable](https://dvic.devinci.fr/api/v3/img/thumbnail/6afo1b88k0hg23p2howf6x1s5ejo35.png)
+![Create executable](https://dvic.devinci.fr/api/v3/img/thumbnail/ocr5xdq1h31ckk8lobzh082djz1p5g.png)
 
 @[split](2, break)
 
@@ -196,11 +204,34 @@ Building the application would requires a very long command to indicate where ea
 ![Link libraries](https://dvic.devinci.fr/api/v3/img/thumbnail/chbwh3iobrryt5zl1aewp3br4v60du.png)
 
 ### Build the executable
+
 Once the CMakeLists.txt is ready, a build folder can be created at the project's root to run this command inside
 
 ![Build executable](https://dvic.devinci.fr/api/v3/img/thumbnail/xeehiciqa0bofbuue1ci9u8yd1pimw.png)
 
+## Step 1.3 Run application
+
 # Level 2 - Add versatility with *Python bindings*
+
+Here we create a real-time vSLAM program that operates with a video stream insted of a file. Moreover, let's make it user-friendly with a Python frontend while keeping it efficient thanks to a C++ backend. Such feature required a bingind : creating an executable which behaves like a python module. We use [pybind11](https://pybind11.readthedocs.io/en/stable/) to produce such binary. 
+
+## Step 2.1 Create python bindings
+
+1.Include files used for binding: `System.h` for declaration of C++ functions we map to python and `pybind11.h` to provide us this ability. Namespace lines gives us acess to functions. `using namespace ORB_SLAM3` makes header's (`.h`) function directly callable by name (instead of having to type `ORB_SLAM3::function_name`). There is no need to include the whole `.cpp` source file since its compiled version (the `.so` we discussed earlier) will be linked to binding's binary ! 
+![Include libraries](https://dvic.devinci.fr/api/v3/img/thumbnail/gkqcfqz54ghcz5r82mnludhfr0fswa.png)
+
+2.Declare a python module named "pyorbslam3" with *pybind11* and give it a docstring. Add a python class named "System" based on `ORB_SLAM3::System` C++ class. Class constructor is describe just below. *pybind11* takes care of converting regular python types (such as str, int and bool) to their C++ counterpart. 
+![Declare module](https://dvic.devinci.fr/api/v3/img/thumbnail/58arwy4s30vel9zy9je0lars5m4ryi.png)
+
+![Track monocular](https://dvic.devinci.fr/api/v3/img/thumbnail/p0b3pxfk5b6zdl94u88u99ytrx6cux.png)
+
+![Bool functions](https://dvic.devinci.fr/api/v3/img/thumbnail/a3as4x0xeekdbjjlro6nklorgunt2b.png)
+
+## Step 2.2 Build bindings
+
+## Step 2.3 Create python program
+
+## Step 2.4 Run python file
 
 # Level 3 - Share your application to world with *Docker*
 
